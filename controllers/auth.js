@@ -1,10 +1,30 @@
 import User from "../models/user.js";
-import { hashPassword, comparePassword } from "../helpers/auth.js";
+import bcrypt from "bcrypt";
+
 
 import jwt from "jsonwebtoken";
 import CleaningRequest from "../models/Cleaningrequest.js";
 import dotenv from "dotenv";
 dotenv.config();
+
+export const hashPassword = (password) => {
+  return new Promise((resolve,reject) => {
+      bcrypt.genSalt(12,(err,salt)=>{
+          if(err) {
+              reject(err);
+          }
+          bcrypt.hash(password, salt, (err,hash) => {
+              if(err){
+                  reject(err);
+              }
+              resolve(hash);
+          });
+      });
+  });
+};
+export const comparePassword = (password,hashed) => {
+  return bcrypt.compare(password,hashed);
+};
 
 export const signup = async (req, res) => {
   console.log("Signup Hit");
