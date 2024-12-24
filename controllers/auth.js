@@ -128,51 +128,62 @@ export const signin = async (req, res) => {
   }
 };
 
-
 export const cleanreq = async (req, res) => {
   try {
-    const { userId, roomno, block } = req.body;
+    const { email } = req.body;
 
-    if (!userId || !roomno || !block) {
-      return res.status(400).json({ error: "All fields are required" });
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
     }
 
     // Create a new cleaning request
     const newRequest = new CleaningRequest({
-      userId,
-      roomno,
-      block,
-      requestType: "Cleaning", // Set the type to Cleaning
+      userId: user._id,
+      roomno: user.roomno,
+      block: user.block,
+      requestType: "Cleaning", // Type explicitly set to "Cleaning"
     });
 
     await newRequest.save();
-    return res.json({ message: "Cleaning request created successfully", newRequest });
+
+    res.json({
+      message: "Cleaning request created successfully",
+      request: newRequest,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error creating cleaning request.");
+    return res.status(500).send("Error creating cleaning request.");
   }
 };
 
 export const maintainreq = async (req, res) => {
   try {
-    const { userId, roomno, block } = req.body;
+    const { email } = req.body;
 
-    if (!userId || !roomno || !block) {
-      return res.status(400).json({ error: "All fields are required" });
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
     }
 
     // Create a new maintenance request
     const newRequest = new CleaningRequest({
-      userId,
-      roomno,
-      block,
-      requestType: "Maintenance", // Set the type to Maintenance
+      userId: user._id,
+      roomno: user.roomno,
+      block: user.block,
+      requestType: "Maintenance", // Type explicitly set to "Maintenance"
     });
 
     await newRequest.save();
-    return res.json({ message: "Maintenance request created successfully", newRequest });
+
+    res.json({
+      message: "Maintenance request created successfully",
+      request: newRequest,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error creating maintenance request.");
+    return res.status(500).send("Error creating maintenance request.");
   }
 };
