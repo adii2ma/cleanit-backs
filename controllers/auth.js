@@ -127,14 +127,18 @@ export const signin = async (req, res) => {
     return res.status(400).send("Error. Try again.");
   }
 };
-
 export const cleanreq = async (req, res) => {
   try {
     const { email } = req.body;
 
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
+      console.log(`User not found for email: ${email}`);
       return res.status(400).json({ error: "User not found" });
     }
 
@@ -143,7 +147,7 @@ export const cleanreq = async (req, res) => {
       userId: user._id,
       roomno: user.roomno,
       block: user.block,
-      requestType: "Cleaning", // Type explicitly set to "Cleaning"
+      requestType: "Cleaning",
     });
 
     await newRequest.save();
@@ -153,8 +157,8 @@ export const cleanreq = async (req, res) => {
       request: newRequest,
     });
   } catch (err) {
-    console.error(err);
-    return res.status(500).send("Error creating cleaning request.");
+    console.error("Error creating cleaning request:", err.message);
+    return res.status(500).json({ error: "Error creating cleaning request" });
   }
 };
 
