@@ -129,25 +129,50 @@ export const signin = async (req, res) => {
 };
 
 
-export const createCleaningRequest = async (req, res) => {
+export const cleanreq = async (req, res) => {
   try {
-    const { userId, roomno, block, requestType } = req.body;
+    const { userId, roomno, block } = req.body;
 
-    if (!userId || !roomno || !block || !requestType) {
+    if (!userId || !roomno || !block) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    // Create a new cleaning request
     const newRequest = new CleaningRequest({
       userId,
       roomno,
       block,
-      requestType,
+      requestType: "Cleaning", // Set the type to Cleaning
     });
 
     await newRequest.save();
-    return res.json({ message: "Request created successfully", newRequest });
+    return res.json({ message: "Cleaning request created successfully", newRequest });
   } catch (err) {
-    console.log(err);
-    res.status(500).send("Error creating request.");
+    console.error(err);
+    res.status(500).send("Error creating cleaning request.");
+  }
+};
+
+export const maintainreq = async (req, res) => {
+  try {
+    const { userId, roomno, block } = req.body;
+
+    if (!userId || !roomno || !block) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    // Create a new maintenance request
+    const newRequest = new CleaningRequest({
+      userId,
+      roomno,
+      block,
+      requestType: "Maintenance", // Set the type to Maintenance
+    });
+
+    await newRequest.save();
+    return res.json({ message: "Maintenance request created successfully", newRequest });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating maintenance request.");
   }
 };
