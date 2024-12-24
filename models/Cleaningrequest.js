@@ -4,11 +4,10 @@ const { Schema } = mongoose;
 
 const cleaningRequestSchema = new Schema(
   {
-    email: {
-      type: String,
-      trim: true,
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
       required: true,
-      unique: true,
     },
     roomno: {
       type: String,

@@ -129,65 +129,48 @@ export const signin = async (req, res) => {
 };
 export const cleanreq = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { userId, roomno, block } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.log(`User not found for email: ${email}`);
-      return res.status(400).json({ error: "User not found" });
+    if (!userId || !roomno || !block) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     // Create a new cleaning request
     const newRequest = new CleaningRequest({
-      userId: user._id,
-      roomno: user.roomno,
-      block: user.block,
-      requestType: "Cleaning",
+      userId,
+      roomno,
+      block,
+      requestType: "Cleaning", // Set the type to Cleaning
     });
 
     await newRequest.save();
-
-    res.json({
-      message: "Cleaning request created successfully",
-      request: newRequest,
-    });
+    return res.json({ message: "Cleaning request created successfully", newRequest });
   } catch (err) {
-    console.error("Error creating cleaning request:", err.message);
-    return res.status(500).json({ error: "Error creating cleaning request" });
+    console.error(err);
+    res.status(500).send("Error creating cleaning request.");
   }
 };
 
 export const maintainreq = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { userId, roomno, block } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: "User not found" });
+    if (!userId || !roomno || !block) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     // Create a new maintenance request
     const newRequest = new CleaningRequest({
-      userId: user._id,
-      roomno: user.roomno,
-      block: user.block,
-      requestType: "Maintenance", // Type explicitly set to "Maintenance"
+      userId,
+      roomno,
+      block,
+      requestType: "Maintenance", // Set the type to Maintenance
     });
 
     await newRequest.save();
-
-    res.json({
-      message: "Maintenance request created successfully",
-      request: newRequest,
-    });
+    return res.json({ message: "Maintenance request created successfully", newRequest });
   } catch (err) {
     console.error(err);
-    return res.status(500).send("Error creating maintenance request.");
+    res.status(500).send("Error creating maintenance request.");
   }
 };
