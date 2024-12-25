@@ -127,19 +127,30 @@ export const signin = async (req, res) => {
     return res.status(400).send("Error. Try again.");
   }
 };
+
 export const cleanreq = async (req, res) => {
   try {
-    const { userId, roomno, block } = req.body;
+    // Get token from headers
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized. No token provided." });
+    }
 
-    if (!userId || !roomno || !block) {
-      return res.status(400).json({ error: "All fields are required" });
+    // Verify and decode the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded._id;
+
+    // Fetch user details from User schema
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
     }
 
     // Create a new cleaning request
     const newRequest = new CleaningRequest({
-      userId,
-      roomno,
-      block,
+      userId: user._id,
+      roomno: user.roomno, // Use the room number from the user document
+      block: user.block,   // Use the block from the user document
       requestType: "Cleaning", // Set the type to Cleaning
     });
 
@@ -153,17 +164,27 @@ export const cleanreq = async (req, res) => {
 
 export const maintainreq = async (req, res) => {
   try {
-    const { userId, roomno, block } = req.body;
+    // Get token from headers
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized. No token provided." });
+    }
 
-    if (!userId || !roomno || !block) {
-      return res.status(400).json({ error: "All fields are required" });
+    // Verify and decode the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded._id;
+
+    // Fetch user details from User schema
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
     }
 
     // Create a new maintenance request
     const newRequest = new CleaningRequest({
-      userId,
-      roomno,
-      block,
+      userId: user._id,
+      roomno: user.roomno, // Use the room number from the user document
+      block: user.block,   // Use the block from the user document
       requestType: "Maintenance", // Set the type to Maintenance
     });
 
