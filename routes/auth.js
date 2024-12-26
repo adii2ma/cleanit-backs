@@ -1,5 +1,5 @@
 import express from "express";
-import { signup, signin, cleanreq, maintainreq} from "../controllers/auth.js"; // Use ES imports
+import { signup, signin, request} from "../controllers/auth.js"; // Use ES imports
 
 const router = express.Router();
 
@@ -11,6 +11,5 @@ router.get("/", (req, res) => {
 
 router.post("/signup", signup);
 router.post("/signin", signin);
-router.post("/cleaningrequest",cleanreq);
-router.post("/maintaingrequest",maintainreq);
+router.post("/request",request);
 export default router; 
