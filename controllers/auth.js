@@ -128,7 +128,7 @@ export const request = async (req, res) => {
       return res.status(400).json({ error: "Type is required" });
     }
 
-    if (!["cleaning", "maintenance"].includes(type)) {
+    if (!["Cleaning", "Maintenance"].includes(type)) {
       return res.status(400).json({ error: "Invalid type provided" });
     }
 
