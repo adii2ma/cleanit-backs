@@ -145,7 +145,7 @@ export const request = async (req, res) => {
     }
 
     // Update the type field in the user document
-    user.type = type;
+    user.requestType = type;
     await user.save();
 
     res.json({
