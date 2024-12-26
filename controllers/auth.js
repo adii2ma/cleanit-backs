@@ -93,40 +93,31 @@ export const signin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // check if our db has user with that email
+    // Check if our DB has a user with that email
     const user = await User.findOne({ email });
     if (!user) {
       return res.json({ error: "No user found" });
     }
 
-    // check password
+    // Check password
     const match = await comparePassword(password, user.password);
     if (!match) {
       return res.json({ error: "Wrong password" });
     }
 
-    // create signed token
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    user.password = undefined;
+    // Store user email in the session
+    req.session.userEmail = email;
 
     res.json({
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        roomno: user.roomno,
-        block: user.block, // Include roomno and block in the response
-      },
+      success: true,
+      message: "Signin successful!",
     });
   } catch (err) {
     console.log(err);
     return res.status(400).send("Error. Try again.");
   }
 };
+
 export const request = async (req, res) => {
   try {
     const { type } = req.body;
@@ -136,22 +127,14 @@ export const request = async (req, res) => {
       return res.status(400).json({ error: "Type is required" });
     }
 
-    // Check if the provided type is valid
     if (!["cleaning", "maintenance"].includes(type)) {
       return res.status(400).json({ error: "Invalid type provided" });
     }
 
-    // Extract the email from the JWT token
-    const token = req.headers.authorization?.split(" ")[1]; // Assuming "Bearer <token>"
-    if (!token) {
-      return res.status(401).json({ error: "Authorization token required" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const email = decoded.email;
-
+    // Check if user email is stored in session
+    const email = req.session.userEmail;
     if (!email) {
-      return res.status(401).json({ error: "Invalid token. User email not found." });
+      return res.status(401).json({ error: "Unauthorized. Please log in." });
     }
 
     // Find the user by email
