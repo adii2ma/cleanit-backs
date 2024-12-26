@@ -57,6 +57,7 @@ export const signup = async (req, res) => {
     if (exist) {
       return res.json({ error: "Email is taken" });
     }
+    req.session.userEmail = email;
 
     // hash password
     const hashedPassword = await hashPassword(password);
