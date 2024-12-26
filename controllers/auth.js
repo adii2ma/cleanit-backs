@@ -127,71 +127,49 @@ export const signin = async (req, res) => {
     return res.status(400).send("Error. Try again.");
   }
 };
-
-export const cleanreq = async (req, res) => {
+export const request = async (req, res) => {
   try {
-    // Get token from headers
-    const token = req.headers.authorization?.split(" ")[1];
+    const { type } = req.body;
+
+    // Validate input
+    if (!type) {
+      return res.status(400).json({ error: "Type is required" });
+    }
+
+    // Check if the provided type is valid
+    if (!["cleaning", "maintenance"].includes(type)) {
+      return res.status(400).json({ error: "Invalid type provided" });
+    }
+
+    // Extract the email from the JWT token
+    const token = req.headers.authorization?.split(" ")[1]; // Assuming "Bearer <token>"
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized. No token provided." });
+      return res.status(401).json({ error: "Authorization token required" });
     }
 
-    // Verify and decode the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded._id;
+    const email = decoded.email;
 
-    // Fetch user details from User schema
-    const user = await User.findById(userId);
+    if (!email) {
+      return res.status(401).json({ error: "Invalid token. User email not found." });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    // Create a new cleaning request
-    const newRequest = new CleaningRequest({
-      userId: user._id,
-      roomno: user.roomno, // Use the room number from the user document
-      block: user.block,   // Use the block from the user document
-      requestType: "Cleaning", // Set the type to Cleaning
+    // Update the type field in the user document
+    user.type = type;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `Request type updated to '${type}' for user '${email}'`,
     });
-
-    await newRequest.save();
-    return res.json({ message: "Cleaning request created successfully", newRequest });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error creating cleaning request.");
-  }
-};
-
-export const maintainreq = async (req, res) => {
-  try {
-    // Get token from headers
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: "Unauthorized. No token provided." });
-    }
-
-    // Verify and decode the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded._id;
-
-    // Fetch user details from User schema
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
-
-    // Create a new maintenance request
-    const newRequest = new CleaningRequest({
-      userId: user._id,
-      roomno: user.roomno, // Use the room number from the user document
-      block: user.block,   // Use the block from the user document
-      requestType: "Maintenance", // Set the type to Maintenance
-    });
-
-    await newRequest.save();
-    return res.json({ message: "Maintenance request created successfully", newRequest });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error creating maintenance request.");
+    console.error("Error updating request type:", err);
+    res.status(500).json({ error: "Failed to update request type" });
   }
 };

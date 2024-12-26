@@ -33,6 +33,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    requestType: {
+      type: String,
+      enum: ["Cleaning", "Maintenance","Nothing"], // Specify allowed request types
+      default: "Nothing",
+      
+    },
     image: {
       public_id: {
         type: String,
