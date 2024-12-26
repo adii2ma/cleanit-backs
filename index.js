@@ -21,12 +21,12 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET, // Use a secret for signing session ID cookies
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: MongoStore.create({ mongoUrl: process.env.DATABASE }), // Persist sessions in MongoDB
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
       httpOnly: true, // Prevent access to cookies via JavaScript
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      secure: false,
     },
   })
 );
