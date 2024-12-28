@@ -33,7 +33,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ credentials: true, origin: "http://localhost:3000" })); // Enable CORS for your frontend
+app.use(cors({ credentials: true, origin: "http://localhost:3000" })); // Enable CORS for your fr
 app.use(morgan("dev"));
 
 app.use("/api", authRoutes);
