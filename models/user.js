@@ -39,6 +39,11 @@ const userSchema = new Schema(
       default: "Nothing",
       
     },
+    status :{
+      type: String,
+      enum: ["pending", "completed"],
+      default: "pending",
+    },
     image: {
       public_id: {
         type: String,
