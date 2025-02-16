@@ -13,4 +13,14 @@ router.post("/signup", signup);
 router.post("/signin", signin);
 router.post("/request",request);
 router.post("/status",status);
+router.get("/status", async (req, res) => {
+    try {
+      const cleaningRequests = await User.find({ requestType: "Cleaning" }).select("name roomno email status");
+      res.json({ success: true, cleaningRequests });
+    } catch (err) {
+      console.error("Error fetching status:", err);
+      res.status(500).json({ error: "Failed to fetch status" });
+    }
+  });
+  
 export default router; 
