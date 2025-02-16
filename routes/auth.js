@@ -16,12 +16,24 @@ router.post("/request",request);
 router.post("/status",status);
 router.get("/status", async (req, res) => {
     try {
-      const cleaningRequests = await User.find({ requestType: "Cleaning" }).select("name roomno email status");
-      res.json({ success: true, cleaningRequests });
+        
+        const email = req.session.userEmail;
+        if (!email) {
+            return res.status(401).json({ error: "Unauthorized. Please log in." });
+        }
+
+     
+        const userRequest = await User.findOne({ email, requestType: "Cleaning" }).select("name roomno email status");
+
+        if (!userRequest) {
+            return res.json({ success: false, message: "No cleaning request found for this user" });
+        }
+
+        res.json({ success: true, cleaningRequest: userRequest });
     } catch (err) {
-      console.error("Error fetching status:", err);
-      res.status(500).json({ error: "Failed to fetch status" });
+        console.error("Error fetching user status:", err);
+        res.status(500).json({ error: "Failed to fetch status" });
     }
-  });
-  
+});
+
 export default router; 
