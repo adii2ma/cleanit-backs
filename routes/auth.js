@@ -1,4 +1,5 @@
 import express from "express";
+import User from "../models/user.js";
 import { signup, signin, request, status} from "../controllers/auth.js"; // Use ES imports
 
 const router = express.Router();
