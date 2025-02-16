@@ -157,29 +157,35 @@ export const request = async (req, res) => {
     res.status(500).json({ error: "Failed to update request type" });
   }
 };
-export const status = async(req,res)=>{
-  try{
-    const{email, status}= req.body;
-    if (!status || !email) {
-      return res.status(400).json({ error: "Status is required" });
-    }
-    if(!["completed","pending"].includes(type)){
-      return res.status(400).json({ error: "Invalid type provided" });
+export const status = async (req, res) => {
+  try {
+    const { email, status } = req.body;
 
+     
+    if (!status || !email) {
+      return res.status(400).json({ error: "Status and email are required" });
     }
+ 
+    if (!["completed", "pending"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status provided" });
+    }
+ 
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+ 
+    user.status = status;
+    await user.save();
+
+    
     res.json({
       success: true,
       message: `Status updated to '${status}' for user '${email}'`,
     });
-    user.status = status;
-    await user.save();
-  }catch (err) {
+  } catch (err) {
     console.error("Error updating status:", err);
     res.status(500).json({ error: "Failed to update status" });
   }
-
-}
+};
