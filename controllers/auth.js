@@ -169,7 +169,7 @@ export const status = async (req, res) => {
     if (!["completed", "pending"].includes(status)) {
       return res.status(400).json({ error: "Invalid status provided" });
     }
- 
+    console.log(email);
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
