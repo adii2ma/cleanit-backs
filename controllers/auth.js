@@ -168,32 +168,45 @@ export const status = async (req, res) => {
   try {
     const { email, status } = req.body;
 
-     
-    if (!status || !email) {
-      return res.status(400).json({ error: "Status and email are required" });
+    if (!email || !status || typeof status !== "object") {
+      return res.status(400).json({ error: "Valid email and status object are required" });
     }
- 
-    if (!["completed", "pending"].includes(status)) {
+
+    // Extract the key dynamically (should be either "cleaning" or "maintenance")
+    const statusKey = Object.keys(status)[0]; // e.g., "cleaning" or "maintenance"
+    const statusValue = status[statusKey]; // e.g., "completed" or "pending"
+
+    if (!["cleaning", "maintenance"].includes(statusKey)) {
+      return res.status(400).json({ error: "Invalid request type provided" });
+    }
+
+    if (!["completed", "pending"].includes(statusValue)) {
       return res.status(400).json({ error: "Invalid status provided" });
     }
-    console.log(email);
-    const user = await User.findOne({ email });
-    if (!user) {
+
+    console.log(`Updating ${statusKey} status to '${statusValue}' for ${email}`);
+
+    // Find the user and update only the relevant status field
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $set: { [`status.${statusKey}`]: statusValue } }, // Dynamic field update
+      { new: true }
+    );
+
+    if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
- 
-    user.status = status;
-    await user.save();
-
-    
     res.json({
       success: true,
-      message: `Status updated to '${status}' for user '${email}'`,
+      message: `Status updated to '${statusValue}' for '${statusKey}'`,
+      user: updatedUser,
     });
+
   } catch (err) {
     console.error("Error updating status:", err);
     res.status(500).json({ error: "Failed to update status" });
   }
 };
+
  
