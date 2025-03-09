@@ -34,9 +34,9 @@ const userSchema = new Schema(
       required: true,
     },
     requestType: {
-      type: String,
-      enum: ["Cleaning", "Maintenance","Nothing"], // Specify allowed request types
-      default: "Nothing",
+      type: [String],
+      enum: ["Cleaning", "Maintenance" ], // Specify allowed request types
+      default: [],
       
     },
     status :{
