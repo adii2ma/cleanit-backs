@@ -39,10 +39,17 @@ const userSchema = new Schema(
       default: [],
       
     },
-    status :{
-      type: String,
-      enum: ["pending", "completed"],
-      default: "pending",
+    status: {
+      cleaning: {
+        type: String,
+        enum: ["pending", "completed", "not_requested"],
+        default: "not_requested", // Default if Cleaning is not selected
+      },
+      maintenance: {
+        type: String,
+        enum: ["pending", "completed", "not_requested"],
+        default: "not_requested", // Default if Maintenance is not selected
+      },
     },
     image: {
       public_id: {

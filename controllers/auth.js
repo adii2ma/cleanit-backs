@@ -144,8 +144,15 @@ export const request = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update the type field in the user document
-    user.requestType = type;
+     if(type==="Cleaning"){
+      user.requestType=[...newSet([...user.requestType,"Cleaning"])];
+      user.status.cleaning="pending";
+
+     }
+     if(type==="Maintanance"){
+      user.requestType=[...newSet([...user.requestType,"Maintanance"])];
+      user.status.cleaning="pending";
+     }
     await user.save();
 
     res.json({
