@@ -145,12 +145,12 @@ export const request = async (req, res) => {
     }
 
      if(type==="Cleaning"){
-      user.requestType=[...newSet([...user.requestType,"Cleaning"])];
+      user.requestType=[...new Set([...user.requestType,"Cleaning"])];
       user.status.cleaning="pending";
 
      }
      if(type==="Maintanance"){
-      user.requestType=[...newSet([...user.requestType,"Maintanance"])];
+      user.requestType=[...new Set([...user.requestType,"Maintanance"])];
       user.status.cleaning="pending";
      }
     await user.save();
