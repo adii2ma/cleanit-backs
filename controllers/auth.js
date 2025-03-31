@@ -147,6 +147,7 @@ export const request = async (req, res) => {
      if(type==="Cleaning"){
       user.requestType=[...new Set([...user.requestType,"Cleaning"])];
       user.status.cleaning="pending";
+      
 
      }
      if(type==="Maintanance"){
@@ -209,4 +210,38 @@ export const status = async (req, res) => {
   }
 };
 
- 
+export const verified = async (req, res) => {
+  try {
+    const { email, verified } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    if (verified !== "yes" && verified !== "no") {
+      return res.status(400).json({ error: "Verification status must be 'yes' or 'no'" });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the verified field with the value provided
+    user.verified = verified;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `User '${email}' verification status set to '${verified}'`,
+      user: {
+        email: user.email,
+        verified: user.verified
+      }
+    });
+  } catch (err) {
+    console.error("Error updating verification status:", err);
+    res.status(500).json({ error: "Failed to update verification status" });
+  }
+}

@@ -51,6 +51,19 @@ const userSchema = new Schema(
         default: "not_requested", // Default if Maintenance is not selected
       },
     },
+    verified:{
+      cleaning:{
+        type: String,
+        enum:["yes","no"],
+        default:"no",
+      },
+      maintenance:{
+        type: String,
+        enum:["yes","no"],
+        default:"no",
+      }
+      
+    },
     image: {
       public_id: {
         type: String,
