@@ -1,6 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
-import { signup, signin, request, status} from "../controllers/auth.js"; // Use ES imports
+import { signup, signin, request, status, verified } from "../controllers/auth.js"; // Use ES imports
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.post("/signup", signup);
 router.post("/signin", signin);
 router.post("/request",request);
 router.post("/status",status);
+router.post("/verified", verified);
 router.get("/status", async (req, res) => {
     try {
         

@@ -55,12 +55,12 @@ const userSchema = new Schema(
       cleaning:{
         type: String,
         enum:["yes","no"],
-        default:"no",
+      
       },
       maintenance:{
         type: String,
         enum:["yes","no"],
-        default:"no",
+        
       }
       
     },
