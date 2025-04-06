@@ -70,10 +70,8 @@ router.get("/status", async (req, res) => {
         }
         
         // If no specific type was requested, determine which type to return based on requestType
-        const requestType = userRequest.requestType.includes("Maintenance") ? "Maintenance" : "Cleaning";
-        
-        // Create a properly structured response
-        if (requestType === "Maintenance") {
+        // Prioritize the most recent request type
+        if (userRequest.requestType.includes("Maintenance")) {
             // For maintenance requests, return the user object with the correct structure
             const maintenanceData = {
                 ...userRequest.toObject(),
@@ -82,14 +80,18 @@ router.get("/status", async (req, res) => {
             
             console.log("Returning maintenance data:", maintenanceData);
             res.json({ success: true, user: maintenanceData });
-        } else {
+        } else if (userRequest.requestType.includes("Cleaning")) {
             // For cleaning requests, return the cleaning request object
             const cleaningData = {
                 ...userRequest.toObject(),
                 status: userRequest.status?.cleaning || "pending"
             };
             
+            console.log("Returning cleaning data:", cleaningData);
             res.json({ success: true, cleaningRequest: cleaningData });
+        } else {
+            // If no request type is found, return a generic response
+            res.json({ success: false, message: "No requests found for this user" });
         }
     } catch (err) {
         console.error("Error fetching user status:", err);

@@ -157,7 +157,12 @@ export const request = async (req, res) => {
         });
       }
       
-      user.requestType = [...new Set([...user.requestType, "Cleaning"])];
+      // Add Cleaning to requestType if not already there
+      if (!user.requestType.includes("Cleaning")) {
+        user.requestType = [...user.requestType, "Cleaning"];
+      }
+      
+      // Update cleaning status to pending
       user.status.cleaning = "pending";
     }
     
@@ -173,15 +178,13 @@ export const request = async (req, res) => {
         });
       }
       
-      // Check if maintenance status exists, if not initialize it
-      if (!user.status.maintenance) {
-        user.status.maintenance = "pending";
-      } else if (user.status.maintenance === "completed" || user.status.maintenance === "not_requested") {
-        // Reset to pending if it was completed or not requested
-        user.status.maintenance = "pending";
+      // Add Maintenance to requestType if not already there
+      if (!user.requestType.includes("Maintenance")) {
+        user.requestType = [...user.requestType, "Maintenance"];
       }
       
-      user.requestType = [...new Set([...user.requestType, "Maintenance"])];
+      // Update maintenance status to pending
+      user.status.maintenance = "pending";
     }
     
     await user.save();
