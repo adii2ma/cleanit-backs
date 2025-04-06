@@ -24,7 +24,7 @@ router.get("/status", async (req, res) => {
         }
 
      
-        const userRequest = await User.findOne({ email, requestType: "Cleaning" }).select("name roomno email status");
+        const userRequest = await User.findOne({ email, requestType: "Cleaning" }).select("name roomno email status verified");
 
         if (!userRequest) {
             return res.json({ success: false, message: "No cleaning request found for this user" });

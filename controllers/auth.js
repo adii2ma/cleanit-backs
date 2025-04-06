@@ -144,16 +144,39 @@ export const request = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-     if(type==="Cleaning"){
-      user.requestType=[...new Set([...user.requestType,"Cleaning"])];
-      user.status.cleaning="pending";
+    // Check if a request of this type already exists and is not completed
+    if (type === "Cleaning") {
+      // If cleaning request already exists and is not completed, don't create a new one
+      if (user.requestType.includes("Cleaning") && 
+          user.status.cleaning !== "completed" && 
+          user.status.cleaning !== "not_requested") {
+        return res.json({
+          success: false,
+          message: `A ${type} request already exists for user '${email}'`,
+          status: user.status.cleaning
+        });
+      }
       
-
-     }
-     if(type==="Maintanance"){
-      user.requestType=[...new Set([...user.requestType,"Maintanance"])];
-      user.status.cleaning="pending";
-     }
+      user.requestType = [...new Set([...user.requestType, "Cleaning"])];
+      user.status.cleaning = "pending";
+    }
+    
+    if (type === "Maintenance") {
+      // If maintenance request already exists and is not completed, don't create a new one
+      if (user.requestType.includes("Maintenance") && 
+          user.status.maintenance !== "completed" && 
+          user.status.maintenance !== "not_requested") {
+        return res.json({
+          success: false,
+          message: `A ${type} request already exists for user '${email}'`,
+          status: user.status.maintenance
+        });
+      }
+      
+      user.requestType = [...new Set([...user.requestType, "Maintenance"])];
+      user.status.maintenance = "pending";
+    }
+    
     await user.save();
 
     res.json({

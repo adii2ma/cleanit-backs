@@ -54,12 +54,14 @@ const userSchema = new Schema(
     verified:{
       cleaning:{
         type: String,
-        enum:["yes","no"],
+        enum:["yes","no","not_rep"],
+        default:"not_rep",
       
       },
       maintenance:{
         type: String,
-        enum:["yes","no"],
+        enum:["yes","no","not_rep"],
+        default:"not_rep",
         
       }
       
