@@ -16,7 +16,7 @@ mongoose
   .then(() => console.log("DB connected"))
   .catch((err) => console.log("DB connection error: ", err));
 
-// Session middlewa
+// Session middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
