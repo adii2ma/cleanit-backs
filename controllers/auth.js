@@ -280,3 +280,55 @@ export const verified = async (req, res) => {
     res.status(500).json({ error: "Failed to update verification status" });
   }
 }
+
+export const saveReview = async (req, res) => {
+  try {
+    const { email, review, type } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    if (!review) {
+      return res.status(400).json({ error: "Review text is required" });
+    }
+
+    if (review.length > 100) {
+      return res.status(400).json({ error: "Review must be 100 characters or less" });
+    }
+
+    // Determine the type (cleaning or maintenance)
+    const requestType = type ? type.toLowerCase() : "cleaning"; // Default to cleaning if not specified
+
+    if (requestType !== "cleaning" && requestType !== "maintenance") {
+      return res.status(400).json({ error: "Request type must be 'cleaning' or 'maintenance'" });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Initialize review object if it doesn't exist
+    if (!user.review) {
+      user.review = {};
+    }
+
+    // Update the specific review field
+    user.review[requestType] = review;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `Review saved for user '${email}' ${requestType} request`,
+      user: {
+        email: user.email,
+        review: user.review
+      }
+    });
+  } catch (err) {
+    console.error("Error saving review:", err);
+    res.status(500).json({ error: "Failed to save review" });
+  }
+}

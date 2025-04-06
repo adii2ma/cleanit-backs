@@ -1,6 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
-import { signup, signin, request, status, verified } from "../controllers/auth.js"; // Use ES imports
+import { signup, signin, request, status, verified, saveReview } from "../controllers/auth.js"; // Use ES imports
 
 const router = express.Router();
 
@@ -12,9 +12,10 @@ router.get("/", (req, res) => {
 
 router.post("/signup", signup);
 router.post("/signin", signin);
-router.post("/request",request);
-router.post("/status",status);
+router.post("/request", request);
+router.post("/status", status);
 router.post("/verified", verified);
+router.post("/review", saveReview);
 router.get("/status", async (req, res) => {
     try {
         
@@ -24,7 +25,7 @@ router.get("/status", async (req, res) => {
         }
 
      
-        const userRequest = await User.findOne({ email, requestType: "Cleaning" }).select("name roomno email status verified");
+        const userRequest = await User.findOne({ email, requestType: "Cleaning" }).select("name roomno email status verified review");
 
         if (!userRequest) {
             return res.json({ success: false, message: "No cleaning request found for this user" });

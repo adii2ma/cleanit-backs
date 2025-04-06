@@ -66,6 +66,18 @@ const userSchema = new Schema(
       }
       
     },
+    review: {
+      cleaning: {
+        type: String,
+        maxlength: 100,
+        default: "",
+      },
+      maintenance: {
+        type: String,
+        maxlength: 100,
+        default: "",
+      }
+    },
     image: {
       public_id: {
         type: String,
