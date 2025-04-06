@@ -23,20 +23,53 @@ router.get("/status", async (req, res) => {
             return res.status(401).json({ error: "Unauthorized. Please log in." });
         }
 
-        // Find user with either cleaning or maintenance request
-        const userRequest = await User.findOne({ 
-            email, 
-            $or: [
+        // Get the request type from query parameters
+        const requestedType = req.query.type || "all";
+        
+        // Find user with the requested type of request
+        const query = { email };
+        
+        // If a specific type is requested, only look for that type
+        if (requestedType === "cleaning") {
+            query.requestType = "Cleaning";
+        } else if (requestedType === "maintenance") {
+            query.requestType = "Maintenance";
+        } else {
+            // If no specific type is requested, look for either type
+            query.$or = [
                 { requestType: "Cleaning" },
                 { requestType: "Maintenance" }
-            ]
-        }).select("name roomno email status verified review requestType");
+            ];
+        }
+        
+        const userRequest = await User.findOne(query)
+            .select("name roomno email status verified review requestType");
 
         if (!userRequest) {
             return res.json({ success: false, message: "No requests found for this user" });
         }
 
-        // Determine which type of request to return based on requestType
+        // If a specific type was requested, return only that type
+        if (requestedType === "cleaning" && userRequest.requestType.includes("Cleaning")) {
+            const cleaningData = {
+                ...userRequest.toObject(),
+                status: userRequest.status?.cleaning || "pending"
+            };
+            
+            console.log("Returning cleaning data:", cleaningData);
+            return res.json({ success: true, cleaningRequest: cleaningData });
+        } 
+        else if (requestedType === "maintenance" && userRequest.requestType.includes("Maintenance")) {
+            const maintenanceData = {
+                ...userRequest.toObject(),
+                status: userRequest.status?.maintenance || "pending"
+            };
+            
+            console.log("Returning maintenance data:", maintenanceData);
+            return res.json({ success: true, user: maintenanceData });
+        }
+        
+        // If no specific type was requested, determine which type to return based on requestType
         const requestType = userRequest.requestType.includes("Maintenance") ? "Maintenance" : "Cleaning";
         
         // Create a properly structured response
