@@ -173,8 +173,15 @@ export const request = async (req, res) => {
         });
       }
       
+      // Check if maintenance status exists, if not initialize it
+      if (!user.status.maintenance) {
+        user.status.maintenance = "pending";
+      } else if (user.status.maintenance === "completed" || user.status.maintenance === "not_requested") {
+        // Reset to pending if it was completed or not requested
+        user.status.maintenance = "pending";
+      }
+      
       user.requestType = [...new Set([...user.requestType, "Maintenance"])];
-      user.status.maintenance = "pending";
     }
     
     await user.save();

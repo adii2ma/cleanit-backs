@@ -18,20 +18,46 @@ router.post("/verified", verified);
 router.post("/review", saveReview);
 router.get("/status", async (req, res) => {
     try {
-        
         const email = req.session.userEmail;
         if (!email) {
             return res.status(401).json({ error: "Unauthorized. Please log in." });
         }
 
-     
-        const userRequest = await User.findOne({ email, requestType: "Cleaning" }).select("name roomno email status verified review");
+        // Find user with either cleaning or maintenance request
+        const userRequest = await User.findOne({ 
+            email, 
+            $or: [
+                { requestType: "Cleaning" },
+                { requestType: "Maintenance" }
+            ]
+        }).select("name roomno email status verified review requestType");
 
         if (!userRequest) {
-            return res.json({ success: false, message: "No cleaning request found for this user" });
+            return res.json({ success: false, message: "No requests found for this user" });
         }
 
-        res.json({ success: true, cleaningRequest: userRequest });
+        // Determine which type of request to return based on requestType
+        const requestType = userRequest.requestType.includes("Maintenance") ? "Maintenance" : "Cleaning";
+        
+        // Create a properly structured response
+        if (requestType === "Maintenance") {
+            // For maintenance requests, return the user object with the correct structure
+            const maintenanceData = {
+                ...userRequest.toObject(),
+                status: userRequest.status?.maintenance || "pending"
+            };
+            
+            console.log("Returning maintenance data:", maintenanceData);
+            res.json({ success: true, user: maintenanceData });
+        } else {
+            // For cleaning requests, return the cleaning request object
+            const cleaningData = {
+                ...userRequest.toObject(),
+                status: userRequest.status?.cleaning || "pending"
+            };
+            
+            res.json({ success: true, cleaningRequest: cleaningData });
+        }
     } catch (err) {
         console.error("Error fetching user status:", err);
         res.status(500).json({ error: "Failed to fetch status" });
