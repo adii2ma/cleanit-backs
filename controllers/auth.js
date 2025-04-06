@@ -212,7 +212,7 @@ export const status = async (req, res) => {
 
 export const verified = async (req, res) => {
   try {
-    const { email, verified } = req.body;
+    const { email, verified, type } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
@@ -222,19 +222,31 @@ export const verified = async (req, res) => {
       return res.status(400).json({ error: "Verification status must be 'yes' or 'no'" });
     }
 
+    // Determine the type (cleaning or maintenance)
+    const requestType = type ? type.toLowerCase() : "cleaning"; // Default to cleaning if not specified
+
+    if (requestType !== "cleaning" && requestType !== "maintenance") {
+      return res.status(400).json({ error: "Request type must be 'cleaning' or 'maintenance'" });
+    }
+
     // Find the user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Update the verified field with the value provided
-    user.verified = verified;
+    // Initialize verified object if it doesn't exist
+    if (!user.verified) {
+      user.verified = {};
+    }
+
+    // Update the specific verification field
+    user.verified[requestType] = verified;
     await user.save();
 
     res.json({
       success: true,
-      message: `User '${email}' verification status set to '${verified}'`,
+      message: `User '${email}' ${requestType} verification status set to '${verified}'`,
       user: {
         email: user.email,
         verified: user.verified
